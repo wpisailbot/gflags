@@ -1503,13 +1503,13 @@ const char* ProgramInvocationShortName() {        // like the GNU libc fn
 }
 
 void SetUsageMessage(const string& usage) {
-  if (program_usage.length())
+  if (program_usage.length() > 0)
     ReportError(DIE, "ERROR: SetUsageMessage() called twice\n");
   program_usage = usage;      // small memory leak
 }
 
 const char* ProgramUsage() {
-  if (program_usage.length()) {
+  if (program_usage.length() > 0) {
     return program_usage.c_str();
   }
   return "Warning: SetUsageMessage() never called";
