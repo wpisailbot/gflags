@@ -1523,7 +1523,7 @@ const char* ProgramUsage() {
 static string version_string;
 
 void SetVersionString(const string& version) {
-  if (version_string.empty() == false)
+  if (version_string.length() > 0)
     ReportError(DIE, "ERROR: SetVersionString() called twice\n");
   version_string = version;
 }
