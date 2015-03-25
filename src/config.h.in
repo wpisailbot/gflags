@@ -5,6 +5,9 @@
 // ---------------------------------------------------------------------------
 // System checks
 
+// Define if you build this library for a MS Windows OS.
+#cmakedefine OS_WINDOWS
+
 // Define if you have the <stdint.h> header file.
 #cmakedefine HAVE_STDINT_H
 
@@ -67,13 +70,10 @@
 // Define to the address where bug reports for this package should be sent.
 #define PACKAGE_BUGREPORT @PACKAGE_BUGREPORT@
 
-// Namespace of gflags library symbols.
-#define GFLAGS_NAMESPACE @GFLAGS_NAMESPACE@
-
 // ---------------------------------------------------------------------------
 // Path separator
 #ifndef PATH_SEPARATOR
-#  if _WIN32
+#  ifdef OS_WINDOWS
 #    define PATH_SEPARATOR  '\\'
 #  else
 #    define PATH_SEPARATOR  '/'
@@ -83,8 +83,10 @@
 // ---------------------------------------------------------------------------
 // Windows
 
-// Whether gflags library is shared.
-#define GFLAGS_IS_A_DLL @GFLAGS_IS_A_DLL@
+// Whether gflags library is a DLL.
+#ifndef GFLAGS_IS_A_DLL
+#  define GFLAGS_IS_A_DLL 0
+#endif
 
 // Always export symbols when compiling a shared library as this file is only
 // included by internal modules when building the gflags library itself.
@@ -101,7 +103,7 @@
 #  define GFLAGS_DLL_DEFINE_FLAG GFLAGS_DLL_DECL
 #endif
 
-#ifdef _WIN32
+#ifdef OS_WINDOWS
 // The unittests import the symbols of the shared gflags library
 #  if GFLAGS_IS_A_DLL && defined(_MSC_VER)
 #    define GFLAGS_DLL_DECL_FOR_UNITTESTS __declspec(dllimport)

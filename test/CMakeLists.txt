@@ -12,7 +12,20 @@ set (GFLAGS_FLAGFILES_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 # ----------------------------------------------------------------------------
 # common include directories and link libraries
 include_directories ("${CMAKE_CURRENT_SOURCE_DIR}")
-link_libraries (gflags_nothreads)
+include_directories ("${gflags_SOURCE_DIR}/src")
+include_directories ("${gflags_BINARY_DIR}/include")
+include_directories ("${gflags_BINARY_DIR}/include/gflags")
+
+if (BUILD_SHARED_LIBS)
+  set (type shared)
+else ()
+  set (type static)
+endif ()
+if (BUILD_gflags_LIB)
+  link_libraries (gflags-${type})
+else ()
+  link_libraries (gflags_nothreads-${type})
+endif ()
 
 # ----------------------------------------------------------------------------
 # STRIP_FLAG_HELP
@@ -35,7 +48,7 @@ add_executable (gflags_unittest      gflags_unittest.cc)
 add_executable (gflags_unittest-main gflags_unittest-main.cc)
 add_executable (gflags_unittest_main gflags_unittest_main.cc)
 
-if (WIN32 AND NOT CYGWIN)
+if (OS_WINDOWS)
   set (SLASH "\\\\")
 else ()
   set (SLASH "/")
@@ -145,14 +158,22 @@ add_gflags_test(always_fail 1 "ERROR: failed validation of new value 'true' for 
 #add_gflags_test(deadlock_if_cant_lock 0 "PASS" ""  gflags_unittest  --deadlock_if_cant_lock)
 
 # ----------------------------------------------------------------------------
+# use gflags_declare.h
+add_executable (gflags_declare_test gflags_declare_test.cc gflags_declare_flags.cc)
+
+add_test(NAME gflags_declare COMMAND gflags_declare_test --message "Hello gflags!")
+set_tests_properties(gflags_declare PROPERTIES PASS_REGULAR_EXPRESSION "Hello gflags!")
+
+# ----------------------------------------------------------------------------
 # (negative) compilation tests
-if (BUILD_NEGATIVE_COMPILATION_TESTS)
+if (BUILD_NC_TESTS)
   find_package (PythonInterp)
   if (NOT PYTHON_EXECUTABLE)
     message (FATAL_ERROR "No Python installation found! It is required by the negative compilation tests."
-                         " Either install Python or set NEGATIVE_COMPILATION_TESTS to FALSE and try again.")
+                         " Either install Python or set BUILD_NC_TESTS to FALSE and try again.")
   endif ()
   set (SRCDIR "${CMAKE_CURRENT_SOURCE_DIR}/nc")
+  set (TMPDIR "${PROJECT_BINARY_DIR}/Testing/Temporary")
   configure_file (gflags_nc.py.in "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/nc.py" @ONLY)
   macro (add_gflags_nc_test name)
     add_test (
